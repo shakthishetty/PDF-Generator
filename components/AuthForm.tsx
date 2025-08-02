@@ -48,17 +48,25 @@ const AuthForm = ({type}:{type: FormType}) => {
     },
   })
 
-  // Load existing data from localStorage when component mounts
+ // Load existing data from localStorage only when returning from preview
   useEffect(() => {
-    const storedData = localStorage.getItem('pdfData')
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData)
-        // Populate the form with existing data
-        form.reset(parsedData)
-      } catch (error) {
-        console.error('Error parsing stored data:', error)
+    // Check if we're returning from the preview page
+    const urlParams = new URLSearchParams(window.location.search)
+    const fromPreview = urlParams.get('from') === 'preview'
+    
+    if (fromPreview) {
+      const storedData = localStorage.getItem('pdfData')
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData)
+          // Populate the form with existing data
+          form.reset(parsedData)
+        } catch (error) {
+          console.error('Error parsing stored data:', error)
+        }
       }
+      // Clean up the URL parameter
+      window.history.replaceState({}, '', window.location.pathname)
     }
   }, [form])
  
@@ -141,7 +149,7 @@ const AuthForm = ({type}:{type: FormType}) => {
           />
           
           <div className="pt-4 flex gap-3">
-            <Button type="submit"  className="bg-gradient-to-r from-green-700 to-green-600 text-white hover:from-green-800 hover:to-green-700 px-10">
+            <Button type="submit" className="bg-gradient-to-r from-green-700 to-green-600 text-white hover:from-green-800 hover:to-green-700 px-10">
               <Image
                 src="/images/view.svg"
                 alt="View PDF"
@@ -154,7 +162,7 @@ const AuthForm = ({type}:{type: FormType}) => {
             <Button 
               type="button" 
               variant="outline" 
-              className="bg-gradient-to-r from-green-700 to-green-600 text-white hover:from-green-800 hover:to-green-700 px-10 max-sm:px-4"
+              className="bg-gradient-to-r from-green-700 to-green-600 text-white hover:from-green-800 hover:to-green-700 px-10 max-sm:px-2"
               onClick={handleDownloadPDF}
             >
               <Image
